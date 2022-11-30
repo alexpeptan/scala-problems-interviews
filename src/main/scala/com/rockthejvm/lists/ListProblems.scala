@@ -16,6 +16,9 @@ sealed abstract class RList[+T] {
 
   // the size of the list
   def length: Int
+
+  // reverse the list
+  def reverse: RList[T]
 }
 
 case object RNil extends RList[Nothing] {
@@ -30,7 +33,11 @@ case object RNil extends RList[Nothing] {
   // get element at a given index
   override def apply(index: Int): Nothing = throw new NoSuchElementException
 
+  // the size of the list
   override def length: Int = 0
+
+  // reverse the list
+  override def reverse: RList[Nothing] = RNil
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] {
@@ -102,8 +109,7 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     applyTailrec(this, 0)
   }
 
-  // the size of the list
-
+  // TODO: the size of the list
   // Initial time to solve:: 6:46
   // Lessons:
   // - no need to use return :)
@@ -118,19 +124,53 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
 
     lengthTailrec(this, 0)
   }
+
+  // TODO: reverse the list
+  // Initial time to solve:: 5:47
+  // Complexity: O(n)
+  // Final time: 24:45 (one extra problem :D)
+  override def reverse: RList[T] = {
+    @tailrec
+    def reverseTailrec(remaining: RList[T], acc: RList[T]): RList[T] = {
+      if (remaining.isEmpty) acc
+      else reverseTailrec(remaining.tail, remaining.head :: acc)
+    }
+
+    reverseTailrec(this, RNil)
+  }
+}
+
+object RList {
+  def from[T](iterable: Iterable[T]): RList[T] = {
+    def convertToRListTailrec(remaining: Iterable[T], acc: RList[T]): RList[T] = {
+      if (remaining.isEmpty) acc
+      else convertToRListTailrec(remaining.tail, remaining.head :: acc)
+    }
+
+    convertToRListTailrec(iterable, RNil).reverse
+  }
 }
 
 object ListProblems extends App {
   RNil.::(2) == 2 :: RNil
   val aSmallList = 1 :: 2 :: 3 :: RNil // RNil.::(3).::(2).::(1)
   println(aSmallList)
-  println((2 :: RNil).length)
+//  println((2 :: RNil).length)
+//  println((2 :: RNil).reverse)
+//  println(aSmallList.reverse)
+//  println(aSmallList.reverse.reverse)
+//  println(RNil.reverse)
 
+  val largeList = RList.from(1 to 10000)
+  println(largeList)
 
 //  println(aSmallList.apply(0))
 //  println(aSmallList.apply(1))
 //  println(aSmallList.apply(2))
 //  println(aSmallList.apply(-1))
+    println(largeList.apply(9876))
+    println(largeList.length)
+    println(largeList.reverse)
 //  val emptyList = RNil
 //  println(emptyList.apply(0))
 }
