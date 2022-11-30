@@ -6,20 +6,31 @@ sealed abstract class RList[+T] {
   def head: T
   def tail: RList[T]
   def isEmpty: Boolean
-
   def ::[S >: T](elem: S): RList[S] = new ::(elem, this)
 
+  /**
+   * Easy problems
+   */
+  // get element at a given index
   def apply(index: Int): T
+
+  // the size of the list
+  def length: Int
 }
 
 case object RNil extends RList[Nothing] {
   override def head: Nothing = throw new NoSuchElementException
   override def tail: RList[Nothing] = throw new NoSuchElementException
   override def isEmpty: Boolean = true
-
   override def toString: String = "[]"
 
+  /**
+   * Easy problems
+   */
+  // get element at a given index
   override def apply(index: Int): Nothing = throw new NoSuchElementException
+
+  override def length: Int = 0
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] {
@@ -34,6 +45,11 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
 
     "[" + toStringTailrec(this, "") + "]"
   }
+
+  /**
+   * Easy problems
+   */
+  // get element at a given index
 
   // Initial time to solve: 9:11
 //  override def apply(index: Int): T = {
@@ -85,17 +101,35 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     if(index < 0) throw new NoSuchElementException
     applyTailrec(this, 0)
   }
+
+  // the size of the list
+
+  // Initial time to solve:: 6:46
+  // Lessons:
+  // - no need to use return :)
+  // Complexity: O(n)
+  // Final time: 14:27
+  override def length: Int = {
+    @tailrec
+    def lengthTailrec(remaining: RList[T], result: Int): Int = {
+      if (remaining.isEmpty)  result
+      else lengthTailrec(remaining.tail, result + 1)
+    }
+
+    lengthTailrec(this, 0)
+  }
 }
 
 object ListProblems extends App {
   RNil.::(2) == 2 :: RNil
   val aSmallList = 1 :: 2 :: 3 :: RNil // RNil.::(3).::(2).::(1)
   println(aSmallList)
+  println((2 :: RNil).length)
 
 
-  println(aSmallList.apply(0))
-  println(aSmallList.apply(1))
-  println(aSmallList.apply(2))
+//  println(aSmallList.apply(0))
+//  println(aSmallList.apply(1))
+//  println(aSmallList.apply(2))
 //  println(aSmallList.apply(-1))
 //  val emptyList = RNil
 //  println(emptyList.apply(0))
