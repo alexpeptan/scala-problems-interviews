@@ -25,6 +25,9 @@ sealed abstract class RList[+T] {
 
   // remove an element at a given index, return a NEW list
   def removeAt(index: Int): RList[T]
+
+  // duplicate each element a number of times in a row
+  def duplicateEach(k: Int): RList[T]
 }
 
 case object RNil extends RList[Nothing] {
@@ -50,6 +53,9 @@ case object RNil extends RList[Nothing] {
 
   // remove an element at a given index, return a NEW list
   override def removeAt(index: Int): RList[Nothing] = RNil
+
+  // duplicate each element a number of times in a row
+  override def duplicateEach(k: Int): RList[Nothing] = RNil
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] {
@@ -179,7 +185,8 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
   // - keep things together - a change in algorithm logic needs to be accounted on all other level of the existing algorithm - otherwise bugs appear ^^
   // - forgot an edge case: currentIndex != index && remaining.isEmpty == true
   // - possible simplification of existing logic after any change - e.g. above edge-case bugfix
-  // Final time: 53:35
+  // - test on largeLists also
+  // Final time: 58:26
    def removeAt(index: Int): RList[T] = {
     @tailrec
     def removeAtTailrec(remaining: RList[T], reversedPredecessors: RList[T], currentIndex: Int): RList[T] = {
@@ -190,6 +197,26 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
 
     if (index < 0) this
     else removeAtTailrec(this, RNil, 0)
+  }
+
+  // Initial time to solve: 10:20
+  // O(N * K)
+  // Final time: 30:23
+  override def duplicateEach(k: Int): RList[T] = {
+    @tailrec
+    def duplicateElementTailrec(elem: T, acc: RList[T], n: Int, current: Int): RList[T] = {
+      if (current == n) acc
+      else duplicateElementTailrec(elem, elem :: acc, n, current + 1)
+    }
+
+    @tailrec
+    def duplicateTailRec(remainingList: RList[T], acc: RList[T]): RList[T] = {
+      if (remainingList.isEmpty) acc
+      else duplicateTailRec(remainingList.tail, acc ++ duplicateElementTailrec(remainingList.head, RNil, k, 0))
+    }
+
+    if (k < 0) this
+    else duplicateTailRec(this, RNil)
   }
 }
 
@@ -213,11 +240,13 @@ object ListProblems extends App {
 //  println(aSmallList ++ RNil)
 //  println(RNil ++ aSmallList)
 //  println(RNil ++ RNil)
-  println(aSmallList.removeAt(-1))
-  println(aSmallList.removeAt(0))
-  println(aSmallList.removeAt(1))
-  println(aSmallList.removeAt(2))
-  println(aSmallList.removeAt(4))
+//  println(aSmallList.removeAt(-1))
+//  println(aSmallList.removeAt(0))
+//  println(aSmallList.removeAt(1))
+//  println(aSmallList.removeAt(2))
+//  println(aSmallList.removeAt(4))
+//  val largeList = RList.from(1 to 10000)
+//  println(largeList.removeAt(4))
 //
 //  println(RNil.removeAt(3))
 
@@ -239,4 +268,6 @@ object ListProblems extends App {
 //    println(largeList.reverse)
 //  val emptyList = RNil
 //  println(emptyList.apply(0))
+  println(aSmallList.duplicateEach(3))
+  println(RNil.duplicateEach(3))
 }
