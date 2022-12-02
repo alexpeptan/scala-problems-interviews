@@ -28,6 +28,11 @@ sealed abstract class RList[+T] {
 
   // duplicate each element a number of times in a row
   def duplicateEach(k: Int): RList[T]
+
+  // rotation by a numebr of positions to the left
+  def rotate(k: Int): RList[T]
+
+  
 }
 
 case object RNil extends RList[Nothing] {
@@ -56,6 +61,9 @@ case object RNil extends RList[Nothing] {
 
   // duplicate each element a number of times in a row
   override def duplicateEach(k: Int): RList[Nothing] = RNil
+
+  // rotation by a numebr of positions to the left
+  override def rotate(k: Int): RList[Nothing] = RNil
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] {
@@ -218,6 +226,24 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     if (k < 0) this
     else duplicateTailRec(this, RNil)
   }
+
+  // rotation by a numebr of positions to the left
+  // Initial time to solve: 15:20
+  // O(n)
+  // Final time: ~35:00
+  override def rotate(k: Int): RList[T] = {
+    val len = this.length
+    val kReduced = k % len
+
+    @tailrec
+    def rotateTailrec(remaining: RList[T], reversedSelected: RList[T], index: Int): RList[T] = {
+      if (index == kReduced) remaining ++ reversedSelected.reverse
+      else rotateTailrec(remaining.tail, remaining.head :: reversedSelected, index + 1)
+    }
+
+    if (k < 0) this
+    else rotateTailrec(this, RNil, 0)
+  }
 }
 
 object RList {
@@ -268,6 +294,14 @@ object ListProblems extends App {
 //    println(largeList.reverse)
 //  val emptyList = RNil
 //  println(emptyList.apply(0))
-  println(aSmallList.duplicateEach(3))
-  println(RNil.duplicateEach(3))
+//  println(aSmallList.duplicateEach(3))
+//  println(RNil.duplicateEach(3))
+
+    println(aSmallList.rotate(0))
+    println(aSmallList.rotate(1))
+    println(aSmallList.rotate(2))
+    println(aSmallList.rotate(3))
+    println(aSmallList.rotate(4))
+    println(aSmallList.rotate(5))
+    println(aSmallList.rotate(-1))
 }
