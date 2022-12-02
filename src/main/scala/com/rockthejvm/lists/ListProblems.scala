@@ -22,6 +22,9 @@ sealed abstract class RList[+T] {
 
   // concatenate another list to this one
   def ++[S >: T](anotherList: RList[S]): RList[S]
+
+  // remove an element at a given index, return a NEW list
+  def removeAt(index: Int): RList[T]
 }
 
 case object RNil extends RList[Nothing] {
@@ -44,6 +47,9 @@ case object RNil extends RList[Nothing] {
 
   // append another list
   def ++[S >: Nothing](anotherList: RList[S]): RList[S] = anotherList
+
+  // remove an element at a given index, return a NEW list
+  override def removeAt(index: Int): RList[Nothing] = RNil
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] {
@@ -162,6 +168,29 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
 //    concatTailrec(anotherList, this.reverse).reverse
     concatTailrec(this.reverse, anotherList) // Daniel's optimisation - faster - only 1 reverse
   }
+
+  // TODO: remove an element at a given index, return a NEW list
+  // Initial time to solve:: 23:33
+  // Complexity: O(n)
+  // Lessons:
+  // - don't forget override - just for clarity - it is implicitly deduced where there is signature matching
+  // - once we have a generic type T we do not add it again as param in inner methods - causes confusion -> we then have T and T^2 etc...
+  // - careful at efficiencies - no of reverse operations - does not impact complexity, but maybe the (dominating) constant
+  // - keep things together - a change in algorithm logic needs to be accounted on all other level of the existing algorithm - otherwise bugs appear ^^
+  // - forgot an edge case: currentIndex != index && remaining.isEmpty == true
+  // - possible simplification of existing logic after any change - e.g. above edge-case bugfix
+  // Final time: 53:35
+   def removeAt(index: Int): RList[T] = {
+    @tailrec
+    def removeAtTailrec(remaining: RList[T], reversedPredecessors: RList[T], currentIndex: Int): RList[T] = {
+      if (currentIndex == index) reversedPredecessors.reverse ++ remaining.tail
+      else if (remaining.isEmpty) reversedPredecessors.reverse
+      else removeAtTailrec(remaining.tail, remaining.head :: reversedPredecessors, currentIndex + 1)
+    }
+
+    if (index < 0) this
+    else removeAtTailrec(this, RNil, 0)
+  }
 }
 
 object RList {
@@ -178,12 +207,19 @@ object RList {
 object ListProblems extends App {
   RNil.::(2) == 2 :: RNil
   val aSmallList = 1 :: 2 :: 3 :: RNil // RNil.::(3).::(2).::(1)
-  val aSmallList_2 = 4 :: 5 :: RNil // RNil.::(3).::(2).::(1)
-  println(aSmallList)
-  println(aSmallList ++ aSmallList_2)
-  println(aSmallList ++ RNil)
-  println(RNil ++ aSmallList)
-  println(RNil ++ RNil)
+//  val aSmallList_2 = 4 :: 5 :: RNil // RNil.::(3).::(2).::(1)
+//  println(aSmallList)
+//  println(aSmallList ++ aSmallList_2)
+//  println(aSmallList ++ RNil)
+//  println(RNil ++ aSmallList)
+//  println(RNil ++ RNil)
+  println(aSmallList.removeAt(-1))
+  println(aSmallList.removeAt(0))
+  println(aSmallList.removeAt(1))
+  println(aSmallList.removeAt(2))
+  println(aSmallList.removeAt(4))
+//
+//  println(RNil.removeAt(3))
 
 //  println((2 :: RNil).length)
 //  println((2 :: RNil).reverse)
