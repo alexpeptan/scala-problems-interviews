@@ -32,7 +32,8 @@ sealed abstract class RList[+T] {
   // rotation by a numebr of positions to the left
   def rotate(k: Int): RList[T]
 
-  
+  // sorting the list in the order defiend in the ordering object
+//  def sorted[S >: T](ordering: Ordering[S]): RList[S]
 }
 
 case object RNil extends RList[Nothing] {
@@ -64,6 +65,9 @@ case object RNil extends RList[Nothing] {
 
   // rotation by a numebr of positions to the left
   override def rotate(k: Int): RList[Nothing] = RNil
+
+  // sorting the list in the order defiend in the ordering object
+//  override def sorted[S >: Nothing](ordering: Ordering[S]): RList[S] = RNil
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] {
@@ -244,6 +248,12 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     if (k < 0) this
     else rotateTailrec(this, RNil, 0)
   }
+
+//  override def sorted[S >: T](ordering: Ordering[S]): RList[S] = {
+//    // take one element
+//    // find its place in the sorted list
+//    // Took a break after 42 minutes and a tutorial just to double check the algorithm. Tomorrow is another day :)
+//  }
 }
 
 object RList {
