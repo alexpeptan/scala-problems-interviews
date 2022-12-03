@@ -10,7 +10,7 @@ object StringProblems extends App {
   // - map vs immutable map
   // - map api
   // Complexity: O(length(s))
-  // Final time: 24:45 (one extra problem :D)
+  // Final time: 34:20
   def countCharacters(s: String): Map[Char, Int] = {
     @tailrec
     def countCharsTailrec(remaining: String, counts: Map[Char, Int]): Map[Char, Int] = {
